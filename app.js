@@ -1,8 +1,9 @@
 /* Walks — interactive map, profile and archive. Reads window.WALKS_DATA. Mounts into #walks-app. */
-(function () {
+/* Load order: data.js and app.js may arrive in either order; whichever comes second starts the map. */
+window.WALKS_INIT = function () {
   var D = window.WALKS_DATA;
   var root = document.getElementById('walks-app');
-  if (!D || !root || root.dataset.ready) return;
+  if (!D || !D.photos || !root || root.dataset.ready) return;
   root.dataset.ready = '1';
 
   /* ---------- walk catalogue (mirrors the "Walks — data" sheet) ---------- */
@@ -471,4 +472,10 @@
   }
   render();
   requestAnimationFrame(function () { phKey = ''; drawPhotos(); });
-})();
+  /* Pika navigates with Turbo: stop audio and remove the lightbox when leaving the page. */
+  document.addEventListener('turbo:before-render', function leave() {
+    audio.pause(); if (lb.parentNode) lb.parentNode.removeChild(lb);
+    document.removeEventListener('turbo:before-render', leave);
+  });
+};
+window.WALKS_INIT();
